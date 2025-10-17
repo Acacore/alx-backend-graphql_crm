@@ -5,4 +5,4 @@ from crm.schema import CRMQuery
 class Query(CRMQuery, graphene.ObjectType):
     ...
     
-    schema = graphene.Schema(query=Query)
+schema = graphene.Schema(query=Query)
