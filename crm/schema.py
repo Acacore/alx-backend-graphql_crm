@@ -4,6 +4,8 @@ from graphene import Mutation, List, Field
 from .models import *
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ValidationError
+from graphene_django.filter import DjangoFilterConnectionField
+from .filters import CustomerFilter, ProductFilter, OrderFilter
 
 
 class CRMQuery(graphene.ObjectType):
@@ -78,7 +80,7 @@ class CustomerInput(graphene.InputObjectType):
     phone = graphene.String()
     address = graphene.String()
     company = graphene.String()
-    
+
 class BulkCreateCustomers(Mutation):
     class Arguments:
         customers = List(CustomerInput, required=True)
@@ -180,6 +182,67 @@ class Mutation(graphene.ObjectType):
     bulk_create_customers = BulkCreateCustomers.Field()
     create_product = CreateProduct.Field()
     create_order = CreateOrder.Field() 
+
+
+# crm/schema.py
+
+
+
+
+# ---------------
+# Query Class
+# ---------------
+
+class Query(graphene.ObjectType):
+    # Customers with filter + order_by
+    all_customers = DjangoFilterConnectionField(
+        CustomerType,
+        order_by=graphene.List(of_type=graphene.String),
+        description="List of customers with optional filtering and ordering."
+    )
+
+    # Products with filter + order_by
+    all_products = DjangoFilterConnectionField(
+        ProductType,
+        order_by=graphene.List(of_type=graphene.String),
+        description="List of products with optional filtering and ordering."
+    )
+
+    # Orders with filter + order_by
+    all_orders = DjangoFilterConnectionField(
+        OrderType,
+        order_by=graphene.List(of_type=graphene.String),
+        description="List of orders with optional filtering and ordering."
+    )
+
+    # Optional: override resolvers to apply order_by manually
+    def resolve_all_customers(self, info, **kwargs):
+        qs = Customer.objects.all()
+
+        order_by = kwargs.get("order_by")
+        if order_by:
+            qs = qs.order_by(*order_by)
+
+        return qs
+
+    def resolve_all_products(self, info, **kwargs):
+        qs = Product.objects.all()
+
+        order_by = kwargs.get("order_by")
+        if order_by:
+            qs = qs.order_by(*order_by)
+
+        return qs
+
+    def resolve_all_orders(self, info, **kwargs):
+        qs = Order.objects.all()
+
+        order_by = kwargs.get("order_by")
+        if order_by:
+            qs = qs.order_by(*order_by)
+
+        return qs
+
 
 
 
