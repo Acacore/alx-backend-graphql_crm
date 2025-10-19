@@ -1,6 +1,9 @@
 import graphene
 from graphene_django import DjangoObjectType
+from graphene import Mutation, List, Field
 from .models import *
+from django.db import transaction, IntegrityError
+from django.core.exceptions import ValidationError
 
 
 class CRMQuery(graphene.ObjectType):
@@ -62,6 +65,60 @@ class CreateCustomer(graphene.Mutation):
         customer.save()
 
         return CreateCustomer(customer=customer)
+    
+class CustomerErrorType(graphene.ObjectType):
+    index = graphene.Int()
+    field = graphene.String()
+    message = graphene.String()
+
+
+class CustomerInput(graphene.InputObjectType):
+    name = graphene.String(required=True)
+    email = graphene.String(required=True)
+    phone = graphene.String()
+    address = graphene.String()
+    company = graphene.String()
+    
+class BulkCreateCustomers(Mutation):
+    class Arguments:
+        customers = List(CustomerInput, required=True)
+
+    created_customers = List(CustomerType)
+    errors = List(CustomerErrorType)
+
+    @classmethod
+    def mutate(cls, root, info, customers):
+        created = []
+        errors = []
+
+        for index, data in enumerate(customers):
+            try:
+                customer = Customer(**data)
+                customer.full_clean()
+                customer.save()
+                created.append(customer)
+            except ValidationError as e:
+                for field, messages in e.message_dict.items():
+                    for message in messages:
+                        errors.append(CustomerErrorType(
+                            index=index,
+                            field=field,
+                            message=message
+                        ))
+            except IntegrityError as e:
+                errors.append(CustomerErrorType(
+                    index=index,
+                    field="email",
+                    message="Email must be unique"
+                ))
+            except Exception as e:
+                errors.append(CustomerErrorType(
+                    index=index,
+                    field="non_field_error",
+                    message=str(e)
+                ))
+
+        return BulkCreateCustomers(created_customers=created, errors=errors)
 
 
 class CreateProduct(graphene.Mutation):
@@ -120,7 +177,7 @@ class Query(graphene.ObjectType):
 
 class Mutation(graphene.ObjectType):
     create_customer = CreateCustomer.Field()
-    # bulk_create_customers = BulkCreateCustomers.Field()
+    bulk_create_customers = BulkCreateCustomers.Field()
     create_product = CreateProduct.Field()
     create_order = CreateOrder.Field() 
 
