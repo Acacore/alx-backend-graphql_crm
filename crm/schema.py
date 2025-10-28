@@ -246,4 +246,4 @@ class Query(graphene.ObjectType):
 
 
 
-schema = graphene.Schema(query=Query, mutation= Mutation)
+schema = graphene.Schema(query=Query, mutation=Mutation)
