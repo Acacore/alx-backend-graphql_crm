@@ -10,8 +10,10 @@ schema = graphene.Schema(query=Query)
 
 
 
-class Query(Query, graphene.ObjectType):
+class Query(CRMQuery, graphene.ObjectType):
     pass
+
+
 
 class Mutation(CRMMutation, graphene.ObjectType):
     pass
