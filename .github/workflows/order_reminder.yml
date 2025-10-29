@@ -1,0 +1,31 @@
+name: Daily Order Reminder
+
+on:
+  schedule:
+    - cron: '0 8 * * *'   # Runs daily at 8 AM UTC
+  workflow_dispatch:       # Allow manual runs
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m venv env
+          source env/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run reminder script
+        run: |
+          source env/bin/activate
+          python crm/cron_jobs/send_order_reminders.py

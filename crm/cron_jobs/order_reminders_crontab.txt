@@ -1,0 +1,1 @@
+0 8 * * * /home/acacore/Desktop/ALX/backend_prodev/week_11/alx-backend-graphql_crm/env/bin/python  /home/acacore/Desktop/ALX/backend_prodev/week_11/alx-backend-graphql_crm/crm/cron_jobs/send_order_reminders.py

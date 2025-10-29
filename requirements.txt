@@ -3,3 +3,5 @@ graphene-django
 django-filter
 django-allauth
 phonenumbers
+gql
+requests
