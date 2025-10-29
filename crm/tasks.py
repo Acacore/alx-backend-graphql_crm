@@ -5,7 +5,7 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
 # Configure logging
-LOG_FILE = "/tmp/crm_report_log.txt"
+LOG_FILE = "/tmp/crmreportlog.txt"
 logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format="%(asctime)s - %(message)s")
 
 @shared_task
