@@ -29,6 +29,7 @@ class Product(models.Model):
     available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    stock = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.name} - ${self.price}"
@@ -44,7 +45,7 @@ class Order(models.Model):
     
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # CRM staff
-    created_at = models.DateTimeField(auto_now_add=True)
+    order_date = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=STATUS, default=STATUS[0][0])
     notes = models.TextField(blank=True)
 

@@ -1,54 +1,73 @@
+# crm/cron_jobs/send_order_reminders.py
+
+import os
 import logging
 from datetime import datetime, timedelta
 from gql import gql, Client
-from gql.transport.request import RequestsHTTPTransport
+from gql.transport.requests import RequestsHTTPTransport
 
-
-#configure logging
+# Configure logging
 LOG_FILE = "/tmp/order_reminders_log.txt"
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format="%(asctime)s - %(message)s"
-)
-def main():
-    #Define GraphQL endpoing
+logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format="%(asctime)s - %(message)s")
+
+def send_order_reminders():
+    # Setup GraphQL client
     transport = RequestsHTTPTransport(
         url="http://localhost:8000/graphql",
-        verify=False,
+        use_json=True,
+        verify=False,  # Optional if using HTTPS locally
         retries=3,
     )
+
     client = Client(transport=transport, fetch_schema_from_transport=False)
 
-    today = datetime.now()
-    last_week = today -timedelta(days=7)
-    start_date = last_week.strftime("%Y-%m-%d")
-
-    #Define GraphQL query
+    # Define GraphQL query
     query = gql("""
-        query RecentOrders($startDate: Date!, $endDate: Date!) {
-            orders(orderDate_Gte: $startDate, orderDate_Lte: $endDate) {
-                id
-                customerEmail
+    query RecentOrders($startDate: Date!, $endDate: Date!) {
+        allOrders(orderDate_Gte: $startDate, orderDate_Lte: $endDate) {
+            edges {
+                node {
+                    id
+                    orderDate
+                    customer {
+                        email
+                    }
+                }
             }
         }
-    """)
+    }
+""")
 
-    # Execute query
-    params = {"startDate": start_date, "endDate": end_date}
+    # 7 days ago
+    end_date = datetime.now().date().isoformat()
+    start_date = (datetime.now() - timedelta(days=7)).date().isoformat()
+
     try:
-        result = client.execute(query, variable_values=params)
-        orders = result.get("orders", [])
+        # Execute query
+        response = client.execute(query, variable_values={
+                    "startDate": start_date,
+                    "endDate": end_date
+                })
+
+        orders = response.get("allOrders", {}).get("edges", [])
         if not orders:
             logging.info("No recent orders found.")
-        else:
-            for order in orders:
-                logging.info(f"Order ID: {order['id']}, Email: {order['customerEmail']}")
+            print("No recent orders found.")
+            return
+
+        # Log each order
+        for order in orders:
+            node = order.get("node", {})
+            order_id = node.get("id")
+            email = node.get("customer", {}).get("email")
+            logging.info(f"Order ID: {order_id}, Customer Email: {email}")
+
+        print("Order reminders processed!")
+
     except Exception as e:
         logging.error(f"GraphQL query failed: {e}")
-        return
+        print(f"Error: {e}")
 
-    print("Order reminders processed!")
-
+# Allow running as standalone script
 if __name__ == "__main__":
-    main()
+    send_order_reminders()

@@ -3,6 +3,7 @@ from datetime import datetime
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
+
 LOG_FILE = "/tmp/crm_heartbeat_log.txt"
 
 def log_crm_heartbeat():
@@ -30,3 +31,48 @@ def log_crm_heartbeat():
     except Exception as e:
         with open(LOG_FILE, "a") as f:
             f.write(f"{timestamp} GraphQL query failed: {e}\n")
+
+
+
+
+
+def update_low_stock():
+    transport = RequestsHTTPTransport(
+        url="http://localhost:8000/graphql",
+        verify=False,
+        retries=3,
+    )
+    client = Client(transport=transport, fetch_schema_from_transport=False)
+
+    # GraphQL mutation
+    mutation = gql("""
+        mutation {
+            updateLowStockProducts {
+                message
+                updatedProducts {
+                    id
+                    name
+                    stock
+                }
+            }
+        }
+    """)
+
+    try:
+        result = client.execute(mutation)
+        data = result.get("updateLowStockProducts", {})
+        message = data.get("message", "No message returned.")
+        updated_products = data.get("updatedProducts", [])
+
+        if updated_products:
+            logging.info(message)
+            for p in updated_products:
+                logging.info(f"Product: {p['name']} → New stock: {p['stock']}")
+        else:
+            logging.info(message)
+
+    except Exception as e:
+        logging.error(f"GraphQL mutation failed: {e}")
+        return
+
+    print("Low-stock products update completed.")

@@ -171,6 +171,31 @@ class CreateOrder(graphene.Mutation):
 
         return CreateCustomer(order=order)
 
+class UpdateLowStockProducts(graphene.Mutation):
+    class Arguments:
+        pass  # No arguments needed
+
+    message = graphene.String()
+    updated_products = graphene.List(ProductType)
+
+    def mutate(self, info):
+        low_stock_products = Product.objects.filter(stock__lt=10)
+
+        updated_products = []
+        for product in low_stock_products:
+            product.stock += 10  # simulate restocking
+            product.save()
+            updated_products.append(product)
+
+        if not updated_products:
+            message = "No low-stock products found."
+        else:
+            message = f"{len(updated_products)} products updated successfully."
+
+        return UpdateLowStockProducts(
+            message=message,
+            updated_products=updated_products
+        )
 
 
 # class Query(graphene.ObjectType):
@@ -194,14 +219,15 @@ class CreateOrder(graphene.Mutation):
 #         return Payment.objects.all()
 #         # return "Hello World"
 
-# class Mutation(graphene.ObjectType):
-#     create_customer = CreateCustomer.Field()
-#     bulk_create_customers = BulkCreateCustomers.Field()
-#     create_product = CreateProduct.Field()
-#     create_order = CreateOrder.Field() 
+class Mutation(graphene.ObjectType):
+    create_customer = CreateCustomer.Field()
+    bulk_create_customers = BulkCreateCustomers.Field()
+    create_product = CreateProduct.Field()
+    create_order = CreateOrder.Field()
+    update_low_stock_products = UpdateLowStockProducts.Field() 
 
 
-# # crm/schema.py
+# crm/schema.py
 
 
 

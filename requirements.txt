@@ -6,3 +6,4 @@ phonenumbers
 gql
 requests
 django-crontab
+requests_toolbelt
