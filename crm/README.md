@@ -1,3 +1,28 @@
+
+### All the setup steps for Celery Task:
+
+Virtual environment creation and activation
+
+pip install -r requirements.txt
+
+Migrations (python manage.py migrate)
+
+Redis installation and start
+
+Django server start (python manage.py runserver)
+
+Celery worker and Beat start
+
+Cron jobs setup (CRONJOBS entries)
+
+How to test logs in /tmp/
+
+GraphQL “hello” field test
+
+
+''' Break Down '''
+
+
 # CRM Celery Beat Report Task
 
 ## Overview
