@@ -9,7 +9,7 @@ LOG_FILE = "/tmp/crmreportlog.txt"
 logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format="%(asctime)s - %(message)s")
 
 @shared_task
-def generate_crm_report():
+def  generatecrmreport():
     """
     Generate a weekly CRM report via GraphQL and log it to /tmp/crm_report_log.txt
     """
