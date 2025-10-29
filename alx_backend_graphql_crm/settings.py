@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'graphene_django',
     # 'phonenumber_field'
     'django_crontab',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

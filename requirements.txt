@@ -7,3 +7,6 @@ gql
 requests
 django-crontab
 requests_toolbelt
+celery
+django-celery-beat
+redis
