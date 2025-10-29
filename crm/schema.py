@@ -1,6 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 from graphene import Mutation, List, Field, relay
+from crm.models import Product
 from .models import *
 from .models import Product
 from django.db import transaction, IntegrityError

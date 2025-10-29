@@ -20,7 +20,7 @@ def log_crm_heartbeat():
         transport = RequestsHTTPTransport(
             url="http://localhost:8000/graphql",
             verify=False,
-            retries=2,
+            retries=3,
         )
         client = Client(transport=transport, fetch_schema_from_transport=False)
         query = gql("""{ hello }""")
@@ -33,6 +33,14 @@ def log_crm_heartbeat():
             f.write(f"{timestamp} GraphQL query failed: {e}\n")
 
 
+
+LOG_FILE = "/tmp/low_stock_updates_log.txt"
+
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format="%(asctime)s - %(message)s"
+)
 
 
 
