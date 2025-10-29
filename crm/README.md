@@ -1,95 +1,97 @@
+# CRM Project Setup Guide
 
-### All the setup steps for Celery Task:
-
-Virtual environment creation and activation
-
-pip install -r requirements.txt
-
-Migrations (python manage.py migrate)
-
-Redis installation and start
-
-Django server start (python manage.py runserver)
-
-Celery worker and Beat start
-
-Cron jobs setup (CRONJOBS entries)
-
-How to test logs in /tmp/
-
-GraphQL “hello” field test
-
-
-''' Break Down '''
-
-
-# CRM Celery Beat Report Task
-
-## Overview
-This module integrates **Celery** and **Celery Beat** with the CRM system to automatically generate a **weekly performance report**.  
-The task queries the GraphQL API to summarize:
-- Total number of customers  
-- Total number of orders  
-- Total revenue  
-
-Each report is logged with a timestamp in `/tmp/crm_report_log.txt`.
+This guide walks you through setting up and running the CRM application, including Redis, database migrations, Celery worker, Celery Beat, and log verification.
 
 ---
 
-## Setup Instructions
+## Prerequisites
 
-### 1. Install Dependencies
-Ensure Redis and the required Python packages are installed:
+- Python 3.8+
+- Redis server
+- `pip` (Python package manager)
+- Virtual environment (recommended)
+
+---
+
+## 1. Install Redis and Dependencies
+
+### Install Redis
 ```bash
+# On Ubuntu/Debian
+sudo apt update
 sudo apt install redis-server
+
+# On macOS (using Homebrew)
+brew install redis
+
+# On CentOS/RHEL
+sudo yum install redis
+Start and enable Redis:
+bashsudo systemctl start redis
+sudo systemctl enable redis
+Install Python Dependencies
+bash# Clone the repository (if applicable)
+git clone <your-repo-url>
+cd crm
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install requirements
 pip install -r requirements.txt
 
-Start the Redis service:
-
-sudo systemctl start redis
-sudo systemctl enable redis
-
-2. Apply Migrations
-
-Run database migrations to initialize Celery Beat’s scheduler tables:
-
-python manage.py migrate
-
-3. Start Celery Services
-
-Open two separate terminals in your project root and run:
-
-Start Celery Worker
-
-celery -A crm worker -l info
+Ensure celery, redis, and django are listed in requirements.txt.
 
 
-Start Celery Beat Scheduler
+2. Run Database Migrations
+bashpython manage.py migrate
+This applies all database schema changes.
 
-celery -A crm beat -l info
+3. Start Celery Worker
+In a new terminal (with virtual environment activated):
+bashcelery -A crm worker -l info
+This starts the background task worker.
+
+4. Start Celery Beat (Scheduler)
+In another terminal:
+bashcelery -A crm beat -l info
+This runs periodic tasks as defined in your app.
+
+5. Verify Logs
+Application and task logs are written to:
+text/tmp/crm_report_log.txt
+Check the log file:
+bashtail -f /tmp/crm_report_log.txt
+You should see task execution logs, errors, or scheduled job activity here.
+
+Notes
+
+Ensure Redis is running before starting Celery.
+Use screen, tmux, or a process manager (like supervisor) in production.
+For development, you can combine worker and beat using:
+bashcelery -A crm worker --beat -l info
 
 
-Celery Beat will trigger the generate_crm_report task every Monday at 6:00 AM.
 
-4. Verify Logs
+Troubleshooting
 
-After the task executes (or if manually triggered), check:
+Issue,Solution
+Connection refused to Redis,Check redis-server is running
+Celery tasks not running,Verify broker URL in settings.py
+Log file not updating,Check write permissions on /tmp
 
-cat /tmp/crm_report_log.txt
 
 
-Example output:
 
-2025-10-29 06:00:00 - Report: 12 customers, 24 orders, 1800.00 revenue
 
-5. Manual Trigger (Optional)
 
-You can manually trigger the report from the Django shell:
 
-python manage.py shell
->>> from crm.tasks import generate_crm_report
->>> generate_crm_report.delay()
 
-Summary
 
-This setup ensures automated, scheduled CRM performance monitoring via Celery Beat, providing a reliable and scalable background task execution framework.
+
+
+
+
+
+IssueSolutionConnection refused to RedisCheck redis-server is runningCelery tasks not runningVerify broker URL in settings.pyLog file not updatingCheck write permissions on /tmp
