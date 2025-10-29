@@ -1,19 +1,8 @@
-# import graphene
-# from crm.schema import Query as CRMQuery, Mutation as CRMMutation
-
-
-# class Query(CRMQuery, graphene.ObjectType):
-#     pass
-
-# class Mutation(CRMMutation, graphene.ObjectType):
-#     pass
-
-# schema = graphene.Schema(query=Query, mutation=Mutation)
-
 import graphene
 from graphene_django import DjangoObjectType
 from graphene import Mutation, List, Field, relay
 from .models import *
+from .models import Product
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ValidationError
 from graphene_django.filter import DjangoFilterConnectionField

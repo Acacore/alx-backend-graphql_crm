@@ -4,6 +4,7 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphene import Mutation, List, Field, relay
 from crm.models import *
+from crm.models import Product
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ValidationError
 from graphene_django.filter import DjangoFilterConnectionField
@@ -232,7 +233,7 @@ class Query(graphene.ObjectType):
 
     def resolve_hello(root, info):
         return "CRM is alive and responding!"
-        
+
     # Customers with filter + order_by
     all_customers = DjangoFilterConnectionField(
         CustomerType,
