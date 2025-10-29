@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django_filters',
     'graphene_django',
     # 'phonenumber_field'
-
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -139,4 +139,9 @@ AUTHENTICATION_BACKENDS = [
 
     # `allauth` specific authentication methods, such as login by email
     'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+
+CRONJOBS = [
+    ('*/5 * * * *', 'crm.cron.log_crm_heartbeat'),
 ]
