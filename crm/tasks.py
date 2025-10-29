@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from celery import shared_task
 from gql import gql, Client
+from gql.transport import request
 from gql.transport.requests import RequestsHTTPTransport
 
 # Configure logging
@@ -9,7 +10,7 @@ LOG_FILE = "/tmp/crmreportlog.txt"
 logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format="%(asctime)s - %(message)s")
 
 @shared_task
-def  generatecrmreport():
+def  generate_crm_report():
     """
     Generate a weekly CRM report via GraphQL and log it to /tmp/crm_report_log.txt
     """
