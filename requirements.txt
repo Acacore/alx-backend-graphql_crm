@@ -10,3 +10,7 @@ requests_toolbelt
 celery
 django-celery-beat
 redis
+gunicorn
+python-dotenv
+dj-database-url
+whitenoise

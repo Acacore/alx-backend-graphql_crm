@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: alx-backend-graphql-crm
+    env: python
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
+    startCommand: "gunicorn alx_backend_graphql_crm.wsgi:application"
+    plan: free
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
