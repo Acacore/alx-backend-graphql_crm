@@ -185,4 +185,9 @@ CELERY_BEAT_SCHEDULE = {
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", os.getenv("RENDER_EXTERNAL_HOSTNAME")]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1", os.getenv("RENDER_EXTERNAL_HOSTNAME"),
+    "crm.acacore.com",
+    "www.crm.acacore.com"
+                 ]
